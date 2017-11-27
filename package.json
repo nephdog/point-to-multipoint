@@ -1,0 +1,28 @@
+{
+  "name": "point-to-multipoint",
+  "version": "1.0.0",
+  "description": "Point-to-Multipoint reliable data transfer protocol using the Stop-and-Wait automatic repeat request scheme",
+  "scripts": {
+    "p2mpserver": "node ./src/p2mpserver.js",
+    "p2mpclient": "node ./src/p2mpclient.js",
+    "test-receiver": "node ./src/p2mpserver.js 7735 ./files/output/test.txt 0.01",
+    "test-sender": "node ./src/p2mpclient.js 127.0.0.1 7735 ./files/input/test1.txt 500"
+  },
+  "keywords": [
+    "Point-to-Multipoint",
+    "reliable",
+    "data",
+    "transfer",
+    "protocol",
+    "Stop-and-Wait",
+    "Automatic",
+    "repeat",
+    "request"
+  ],
+  "author": "Nephi Grant",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "uuid": "^3.1.0"
+  }
+}

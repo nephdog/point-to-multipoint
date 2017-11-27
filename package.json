@@ -5,8 +5,8 @@
   "scripts": {
     "p2mpserver": "node ./src/p2mpserver.js",
     "p2mpclient": "node ./src/p2mpclient.js",
-    "test-receiver": "node ./src/p2mpserver.js 7735 ./files/output/test.txt 0.01",
-    "test-sender": "node ./src/p2mpclient.js 127.0.0.1 7735 ./files/input/test1.txt 500"
+    "test:receiver": "node ./src/p2mpserver.js 7735 ./files/output/test.txt 0.05",
+    "test:sender": "node ./src/p2mpclient.js 127.0.0.1 7735 ./files/input/test1.txt 500"
   },
   "keywords": [
     "Point-to-Multipoint",

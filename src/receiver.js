@@ -22,7 +22,7 @@ module.exports = class Receiver {
         this.socket.on('listening', this.listening);
         this.socket.on('message', this.message);
         this.socket.bind({
-            address: `localhost`,
+            address: `192.168.1.14`,
             port: port
         });
     }

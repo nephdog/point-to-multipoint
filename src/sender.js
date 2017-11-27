@@ -43,6 +43,7 @@ module.exports = class Sender {
     }
 
     rdtSend() {
+        //console.log('SENDING SEQUENCE', this.segmentCount);
         this.sendSegement(this.segmentCount, this.hosts);
     }
 
@@ -50,18 +51,21 @@ module.exports = class Sender {
         const body = this.data.slice((segmentCount - 1)*this.mss, this.mss*segmentCount);
         const header = getHeader(segmentCount, checksum16(body), 0x5555);
         this.packet = Buffer.concat([header, body], header.length + body.length);
-        this.sendPacket(this.packet, hosts);
+        this.sendPacket(this.packet, hosts, true);
     }
 
-    sendPacket(packet, hosts) {
+    sendPacket(packet, hosts, addPendingAcks) {
         clearTimeout(this.timeout);
         this.timeout = null;
 
-        this.hosts.forEach((host) => {
-            this.pendingAcks[host] = true;
-        });
+        if(addPendingAcks) {
+            this.pendingAcks = {};
+            hosts.forEach((host) => {
+                this.pendingAcks[host] = true;
+            });
+        }
         this.timeout = setTimeout(this.messageTimeout, this.timeoutTime);
-        this.hosts.forEach((host) => {
+        hosts.forEach((host) => {
             this.socket.send(packet, 7735, host);
         });
     }
@@ -78,6 +82,7 @@ module.exports = class Sender {
                 this.sendSegement(packet.sequence, [info.address]);
             }
             else {
+                //console.log('ACK RECEIVED FROM', info.address);
                 delete this.pendingAcks[info.address];
                 if(Object.keys(this.pendingAcks).length === 0) {
                     clearTimeout(this.timeout);
@@ -93,12 +98,16 @@ module.exports = class Sender {
                         this.rdtSend();
                     }
                 }
+                else {
+                    //console.log('STILL AWAITING ACKs', Object.keys(this.pendingAcks));
+                }
             }
         }
     }
 
     messageTimeout() {
         console.log(`Timeout, sequence number = ${this.segmentCount}`);
-        this.sendPacket(this.packet, Object.keys(this.pendingAcks));
+        //console.log('Retrying', Object.keys(this.pendingAcks));
+        this.sendPacket(this.packet, Object.keys(this.pendingAcks), false);
     }
 }

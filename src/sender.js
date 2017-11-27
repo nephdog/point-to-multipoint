@@ -6,7 +6,7 @@ const dgram = require('dgram');
 const parsePacket = require('./parse-packet');
 
 module.exports = class Sender {
-    constructor(hosts, port, file, mss) {
+    constructor(hosts, port, file, mss, clientHost) {
         this.listening = this.listening.bind(this);
         this.message = this.message.bind(this);
         this.messageTimeout = this.messageTimeout.bind(this);
@@ -27,7 +27,7 @@ module.exports = class Sender {
         this.socket.on('listening', this.listening);
         this.socket.on('message', this.message);
         this.socket.bind({
-            address: `localhost`,
+            address: clientHost,
             port: 65000
         });
     }

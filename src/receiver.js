@@ -7,7 +7,7 @@ const getHeader = require('./header');
 const uuidv1 = require('uuid/v1');
 
 module.exports = class Receiver {
-    constructor(port, file, probability) {
+    constructor(port, file, probability, socketHost) {
         this.listening = this.listening.bind(this);
         this.message = this.message.bind(this);
 
@@ -22,7 +22,7 @@ module.exports = class Receiver {
         this.socket.on('listening', this.listening);
         this.socket.on('message', this.message);
         this.socket.bind({
-            address: `192.168.1.14`,
+            address: socketHost,
             port: port
         });
     }

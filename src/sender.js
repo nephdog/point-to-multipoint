@@ -47,11 +47,13 @@ module.exports = class Sender {
         this.sendSegement(this.segmentCount, this.hosts);
     }
 
-    sendSegement(segmentCount, hosts) {
+    sendSegement(segmentCount, hosts, ignore) {
         const body = this.data.slice((segmentCount - 1)*this.mss, this.mss*segmentCount);
         const header = getHeader(segmentCount, checksum16(body), 0x5555);
         this.packet = Buffer.concat([header, body], header.length + body.length);
-        this.sendPacket(this.packet, hosts, true);
+        if(!ignore) {
+            this.sendPacket(this.packet, hosts, true);
+        }
     }
 
     sendPacket(packet, hosts, addPendingAcks) {
@@ -59,7 +61,6 @@ module.exports = class Sender {
         this.timeout = null;
 
         if(addPendingAcks) {
-            this.pendingAcks = {};
             hosts.forEach((host) => {
                 this.pendingAcks[host] = true;
             });
@@ -78,8 +79,10 @@ module.exports = class Sender {
     message(msg, info) {
         const packet = parsePacket(msg);
         if(packet.packetType === 0xAAAA) {
-            if(packet.sequence !== this.segmentCount) {
-                this.sendSegement(packet.sequence, [info.address]);
+            if(packet.sequence !== this.segmentCount && packet.sequence < this.segmentCount) {
+                //console.log('PACKET OUT OF SEQUENCE');
+                this.segmentCount = packet.sequence;
+                this.sendSegement(packet.sequence, [info.address], true);
             }
             else {
                 //console.log('ACK RECEIVED FROM', info.address);
